@@ -1,11 +1,11 @@
 
 let form, nameInput, dateInput, prioritySelect, viewBody, editBody;
-let currentIdx = null;
+let currentindex = null;
 let filterPriority = 'all';
 
 let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
 
-function saveToDB() {
+function addInLS() {
     localStorage.setItem('tasks', JSON.stringify(tasks));
 }
 
@@ -46,7 +46,7 @@ function setupFormElements() {
 }
 
 
-function displayViewTasks() {
+function ViewTasks() {
     viewBody.innerHTML = '';
     const filteredTasks = getFilteredTasks();
     
@@ -67,7 +67,7 @@ function displayViewTasks() {
     });
 }
 
-function displayEditTasks() {
+function EditTasks() {
     editBody.innerHTML = '';
     const filteredTasks = getFilteredTasks();
     
@@ -77,25 +77,25 @@ function displayEditTasks() {
         return;
     }
     
-    filteredTasks.forEach((task, idx) => {
+    filteredTasks.forEach((task, index) => {
         const row = editBody.insertRow();
         row.innerHTML = `
             <td>${task.name}</td>
             <td>${task.dueDate}</td>
             <td><span class="${getBadgeClass(task.priority)}">${capitalizeWord(task.priority)}</span></td>
             <td>
-                <button type="button" class="btn btn-outline-danger del-btn" data-idx="${idx}">Delete</button>
-                <button type="button" class="btn btn-outline-warning edt-btn" data-idx="${idx}">Edit</button>
+                <button type="button" class="btn btn-outline-danger del-btn" data-index="${index}">Delete</button>
+                <button type="button" class="btn btn-outline-warning edt-btn" data-index="${index}">Edit</button>
             </td>
         `;
     });
     
     document.querySelectorAll('.del-btn').forEach(btn => 
-        btn.addEventListener('click', () => removeTask(parseInt(btn.dataset.idx)))
+        btn.addEventListener('click', () => removeTask(parseInt(btn.dataset.index)))
     );
     
     document.querySelectorAll('.edt-btn').forEach(btn => 
-        btn.addEventListener('click', () => startEditing(parseInt(btn.dataset.idx)))
+        btn.addEventListener('click', () => startEditing(parseInt(btn.dataset.index)))
     );
 }
 
@@ -109,22 +109,22 @@ function createNewTask(name, date, priority) {
         status: 'Pending'
     });
     
-    saveToDB();
-    displayViewTasks();
-    displayEditTasks();
+    addInLS();
+    ViewTasks();
+    EditTasks();
 }
 
-function removeTask(idx) {
-    tasks = tasks.filter((_, i) => i !== idx);
-    saveToDB();
-    displayViewTasks();
-    displayEditTasks();
+function removeTask(index) {
+    tasks = tasks.filter((_, i) => i !== index);
+    addInLS();
+    ViewTasks();
+    EditTasks();
 }
 
-function startEditing(idx) {
-    if (idx >= 0 && idx < tasks.length) {
-        const task = tasks[idx];
-        currentIdx = idx;
+function startEditing(index) {
+    if (index >= 0 && index < tasks.length) {
+        const task = tasks[index];
+        currentindex = index;
         
         nameInput.value = task.name;
         dateInput.value = task.dueDate;
@@ -141,8 +141,8 @@ function startEditing(idx) {
 
 function applyPriorityFilter(priority) {
     filterPriority = priority;
-    displayViewTasks();
-    displayEditTasks();
+    ViewTasks();
+    EditTasks();
 }
 
 
@@ -168,12 +168,12 @@ function submitForm(event) {
         return;
     }
     
-    if (currentIdx !== null) {
+    if (currentindex !== null) {
         
-        Object.assign(tasks[currentIdx], { name, dueDate: date, priority });
-        saveToDB();
+        Object.assign(tasks[currentindex], { name, dueDate: date, priority });
+        addInLS();
         
-        currentIdx = null;
+        currentindex = null;
         const submitBtn = form.querySelector('button[type="submit"]');
         submitBtn.textContent = 'Add Task';
         submitBtn.classList.toggle('btn-outline-dark', true);
@@ -183,15 +183,15 @@ function submitForm(event) {
         createNewTask(name, date, priority);
     }
     
-    displayViewTasks();
-    displayEditTasks();
+    ViewTasks();
+    EditTasks();
     form.reset();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     setupFormElements();
-    displayViewTasks();
-    displayEditTasks();
+    ViewTasks();
+    EditTasks();
     
     switchPage('add-task-page');
     
